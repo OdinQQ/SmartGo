@@ -19,7 +19,8 @@ import go.smart.woaiwhz.smartgo.SmartGo;
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1 << 10;
     public static final String REQUEST_STRING = "resolve";
-    private ServiceConnection mServiceConntect;
+    private ServiceConnection mServiceConnection;
+    private BroadcastReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +59,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void launchService(View v){
-        if(mServiceConntect == null){
-            mServiceConntect = new MyServiceConnect();
+        if(mServiceConnection == null){
+            mServiceConnection = new MyServiceConnect();
         }
 
         SmartGo.from(this)
                 .run(BackgroundService.class)
-                .bind(mServiceConntect, Service.BIND_AUTO_CREATE)
+                .bind(mServiceConnection, Service.BIND_AUTO_CREATE)
                 .go();
     }
 
@@ -85,14 +86,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        unbindService(mServiceConntect);
+        if(mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
+
+        if(mReceiver != null){
+            unregisterReceiver(mReceiver);
+        }
     }
 
     public void launchBroadcast(View v){
         registerReceiver();
 
         SmartGo.from(this)
-                .send("go.smart.woaiwhz.smartgoproject.broadcast")
+                .send(MyReceiver.FILTER)
                 .extras()
                 .with(REQUEST_STRING,"I'm a broadcast!")
                 .then()
@@ -100,12 +107,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void registerReceiver(){
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Toast.makeText(getApplicationContext(),intent.getStringExtra(REQUEST_STRING),Toast.LENGTH_SHORT).show();
-            }
-        },new IntentFilter("go.smart.woaiwhz.smartgoproject.broadcast"));
+        mReceiver = new MyReceiver();
+
+        registerReceiver(mReceiver,new IntentFilter(MyReceiver.FILTER));
+    }
+
+    private class MyReceiver extends BroadcastReceiver{
+        static final String FILTER = "go.smart.woaiwhz.smartgoproject.broadcast";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(getApplicationContext(),intent.getStringExtra(REQUEST_STRING),Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

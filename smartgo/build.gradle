@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode 1
         versionName "1.0"
     }
@@ -18,34 +18,34 @@ android {
         }
     }
 }
-def jCenter = new Properties()
-jCenter.load(project.rootProject.file('local.properties').newDataInputStream())
-
-def getProp(def jCenter,String key){
-
-    if (jCenter == null || key == null){
-        return ""
-    }
-
-    def value = jCenter.getProperty(key)
-
-    return value
-}
 
 publish {
-    groupId = "go.smart.woaiwhz.smartgo"
-    artifactId = "SmartGo"
-    publishVersion = "0.9.1"
-    website = "git@github.com:Sausure/SmartGo.git"
+    def local = parseLocalProperties()
 
-    userOrg = getProp(jCenter,"user")
-    bintrayUser = getProp(jCenter,"user")
-    desc = getProp(jCenter,"desc")
-    bintrayKey = getProp(jCenter,"bintrayKey")
+    groupId = convert(local.groupId)
+    artifactId = convert(local.artifactId)
+    publishVersion = convert(local.publishVersion)
+    website = convert(local.website)
+
+    userOrg = convert(local.user)
+    bintrayUser = convert(local.user)
+    desc = convert(local.desc)
+    bintrayKey = convert(local.bintrayKey)
+}
+
+def convert(def string){
+    return string == null ? " " : string
+}
+
+def parseLocalProperties(){
+    def local = new Properties()
+    local.load(project.rootProject.file('local.properties').newDataInputStream())
+
+    return local;
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:24.2.0'
 }

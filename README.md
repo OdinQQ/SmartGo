@@ -6,7 +6,7 @@
 In your `build.gradle`:
 ```groovy
 dependencies {
-    compile 'go.smart.woaiwhz.smartgo:SmartGo:1.0.0'
+    compile 'go.smart.woaiwhz.smartgo:SmartGo:1.0.1'
 }
 ```
 

@@ -1,6 +1,5 @@
 package go.smart.woaiwhz.smartgo.builder;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -18,7 +17,6 @@ import go.smart.woaiwhz.smartgo.base.Box;
 /**
  * Created by huazhou.whz on 2016/8/24.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class SharedAnimatorBuilder<M> {
     private final Box<ActivityOptionsCompat> mBox;
     private final List<Pair> mCollection;
@@ -33,7 +31,9 @@ public class SharedAnimatorBuilder<M> {
     }
 
     public SharedAnimatorBuilder<M> like(@NonNull View view){
-        like(view,view.getTransitionName());
+        if(isSupport()) {
+            like(view, view.getTransitionName());
+        }
 
         return this;
     }
@@ -50,11 +50,19 @@ public class SharedAnimatorBuilder<M> {
         return this;
     }
 
+    private boolean isSupport(){
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
     public M withSystemUI(){
         return withSystemUI(true);
     }
 
     public M withSystemUI(boolean includeStatusBar){
+        if(!isSupport()) {
+            return then();
+        }
+
         final View decor = mActivity.getWindow().getDecorView();
 
         if (decor == null){
